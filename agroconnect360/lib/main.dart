@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'providers/farm_provider.dart';
 import 'providers/marketplace_provider.dart';
 import 'providers/finance_provider.dart';
+import 'providers/notifications_provider.dart';
 import 'screens/auth/welcome_screen.dart';
 
 void main() {
@@ -45,6 +46,9 @@ class AgroConnect360App extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => FinanceProvider()..initializeMockData(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NotificationsProvider()..initializeMockData(),
         ),
       ],
       child: MaterialApp(

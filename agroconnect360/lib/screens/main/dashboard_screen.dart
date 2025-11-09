@@ -5,7 +5,9 @@ import '../../constants/app_strings.dart';
 import '../../providers/farm_provider.dart';
 import '../../providers/finance_provider.dart';
 import '../../providers/marketplace_provider.dart';
+import '../../providers/notifications_provider.dart';
 import '../advisory/weather_advisory_screen.dart';
+import '../notifications/notifications_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -15,14 +17,26 @@ class DashboardScreen extends StatelessWidget {
     final farmProvider = Provider.of<FarmProvider>(context);
     final financeProvider = Provider.of<FinanceProvider>(context);
     final marketplaceProvider = Provider.of<MarketplaceProvider>(context);
+    final notificationsProvider = Provider.of<NotificationsProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.dashboard),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
+            icon: Badge(
+              label: Text('${notificationsProvider.unreadCount}'),
+              isLabelVisible: notificationsProvider.unreadCount > 0,
+              child: const Icon(Icons.notifications_outlined),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),

@@ -5,6 +5,7 @@ import '../../constants/app_strings.dart';
 import '../../models/marketplace_item_model.dart';
 import '../../providers/marketplace_provider.dart';
 import '../marketplace/item_details_screen.dart';
+import '../marketplace/add_listing_screen.dart';
 
 class MarketplaceScreen extends StatefulWidget {
   const MarketplaceScreen({super.key});
@@ -14,7 +15,14 @@ class MarketplaceScreen extends StatefulWidget {
 }
 
 class _MarketplaceScreenState extends State<MarketplaceScreen> {
-  ItemCategory? _selectedCategory;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   final _sampleItems = [
     MarketplaceItemModel(
@@ -74,24 +82,61 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   @override
   Widget build(BuildContext context) {
     final marketplaceProvider = Provider.of<MarketplaceProvider>(context);
-    final filteredItems = marketplaceProvider.filteredItems;
+    var filteredItems = marketplaceProvider.filteredItems;
+
+    // Apply search filter
+    if (_searchQuery.isNotEmpty) {
+      filteredItems = marketplaceProvider.searchItems(_searchQuery);
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.marketplace),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          IconButton(
             icon: const Icon(Icons.filter_list),
-            onPressed: () {},
+            onPressed: () {
+              _showFilterDialog(context);
+            },
           ),
         ],
       ),
       body: Column(
         children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search items...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          setState(() {
+                            _searchController.clear();
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: AppColors.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+
           // Category Filter
           Container(
             height: 60,
@@ -124,7 +169,12 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO: Navigate to add listing screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddListingScreen(),
+            ),
+          );
         },
         icon: const Icon(Icons.add),
         label: const Text('Sell Item'),
@@ -313,5 +363,77 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       case ItemCategory.other:
         return Icons.category;
     }
+  }
+
+  void _showFilterDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Filter & Sort',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.sort, color: AppColors.primary),
+              title: const Text('Sort by Price: Low to High'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sorting feature coming soon')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.sort, color: AppColors.primary),
+              title: const Text('Sort by Price: High to Low'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sorting feature coming soon')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.date_range, color: AppColors.primary),
+              title: const Text('Sort by Date: Newest First'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sorting feature coming soon')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_on, color: AppColors.primary),
+              title: const Text('Filter by Location'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Location filter coming soon')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
