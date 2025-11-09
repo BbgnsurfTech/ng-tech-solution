@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_strings.dart';
 import '../../models/crop_model.dart';
+import '../../providers/farm_provider.dart';
+import '../farm/add_crop_screen.dart';
 
 class FarmScreen extends StatelessWidget {
   const FarmScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Sample data
-    final sampleCrops = [
+    final farmProvider = Provider.of<FarmProvider>(context);
+    final crops = farmProvider.activeCrops;
+    final primaryFarm = farmProvider.primaryFarm;
+
+    // Sample data for backward compatibility
+    final sampleCrops = crops.isNotEmpty ? crops : [
       CropModel(
         id: '1',
         farmId: 'farm1',
@@ -115,7 +122,14 @@ class FarmScreen extends StatelessWidget {
                 ),
                 TextButton.icon(
                   onPressed: () {
-                    // TODO: Navigate to add crop screen
+                    if (primaryFarm != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddCropScreen(farmId: primaryFarm.id),
+                        ),
+                      );
+                    }
                   },
                   icon: const Icon(Icons.add),
                   label: const Text(AppStrings.addCrop),
@@ -183,7 +197,14 @@ class FarmScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO: Navigate to add crop screen
+          if (primaryFarm != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddCropScreen(farmId: primaryFarm.id),
+              ),
+            );
+          }
         },
         icon: const Icon(Icons.add),
         label: const Text(AppStrings.addCrop),

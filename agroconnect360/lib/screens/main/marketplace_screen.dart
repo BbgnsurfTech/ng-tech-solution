@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_strings.dart';
 import '../../models/marketplace_item_model.dart';
+import '../../providers/marketplace_provider.dart';
+import '../marketplace/item_details_screen.dart';
 
 class MarketplaceScreen extends StatefulWidget {
   const MarketplaceScreen({super.key});
@@ -70,9 +73,8 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredItems = _selectedCategory == null
-        ? _sampleItems
-        : _sampleItems.where((item) => item.category == _selectedCategory).toList();
+    final marketplaceProvider = Provider.of<MarketplaceProvider>(context);
+    final filteredItems = marketplaceProvider.filteredItems;
 
     return Scaffold(
       appBar: AppBar(
@@ -131,16 +133,15 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   }
 
   Widget _buildCategoryChip(String label, ItemCategory? category) {
-    final isSelected = _selectedCategory == category;
+    final marketplaceProvider = Provider.of<MarketplaceProvider>(context, listen: false);
+    final isSelected = marketplaceProvider.selectedCategory == category;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
         label: Text(label),
         selected: isSelected,
         onSelected: (selected) {
-          setState(() {
-            _selectedCategory = selected ? category : null;
-          });
+          marketplaceProvider.setCategory(selected ? category : null);
         },
         selectedColor: AppColors.primary,
         labelStyle: TextStyle(
@@ -156,7 +157,12 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to item details
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ItemDetailsScreen(itemId: item.id),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
