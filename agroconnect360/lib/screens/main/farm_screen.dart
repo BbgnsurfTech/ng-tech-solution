@@ -5,6 +5,7 @@ import '../../constants/app_strings.dart';
 import '../../models/crop_model.dart';
 import '../../providers/farm_provider.dart';
 import '../farm/add_crop_screen.dart';
+import '../advisory/weather_advisory_screen.dart';
 
 class FarmScreen extends StatelessWidget {
   const FarmScreen({super.key});
@@ -152,20 +153,40 @@ class FarmScreen extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _buildActionCard(
-                    context,
-                    'Weather',
-                    Icons.wb_sunny,
-                    AppColors.warning,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WeatherAdvisoryScreen(),
+                        ),
+                      );
+                    },
+                    child: _buildActionCard(
+                      context,
+                      'Weather',
+                      Icons.wb_sunny,
+                      AppColors.warning,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _buildActionCard(
-                    context,
-                    'Advisory',
-                    Icons.lightbulb_outline,
-                    AppColors.info,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WeatherAdvisoryScreen(),
+                        ),
+                      );
+                    },
+                    child: _buildActionCard(
+                      context,
+                      'Advisory',
+                      Icons.lightbulb_outline,
+                      AppColors.info,
+                    ),
                   ),
                 ),
               ],
