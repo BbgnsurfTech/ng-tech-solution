@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_strings.dart';
+import '../../providers/finance_provider.dart';
+import '../finance/loan_application_screen.dart';
 
 class FinanceScreen extends StatelessWidget {
   const FinanceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final financeProvider = Provider.of<FinanceProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.finance),
@@ -45,7 +50,7 @@ class FinanceScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '₦125,450.00',
+                      '₦${financeProvider.walletBalance.toStringAsFixed(2)}',
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: AppColors.primary,
@@ -96,7 +101,14 @@ class FinanceScreen extends StatelessWidget {
                     'Loans',
                     Icons.account_balance,
                     AppColors.primary,
-                    () {},
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoanApplicationScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -169,7 +181,14 @@ class FinanceScreen extends StatelessWidget {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoanApplicationScreen(),
+                          ),
+                        );
+                      },
                       child: const Text('Apply'),
                     ),
                   ],
@@ -193,38 +212,16 @@ class FinanceScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _buildTransactionItem(
-              context,
-              'Payment Received',
-              'Cocoa Sale - John Doe',
-              '+₦50,000',
-              true,
-              DateTime.now().subtract(const Duration(hours: 2)),
-            ),
-            _buildTransactionItem(
-              context,
-              'Input Purchase',
-              'Fertilizer - ABC Agro',
-              '-₦18,000',
-              false,
-              DateTime.now().subtract(const Duration(days: 1)),
-            ),
-            _buildTransactionItem(
-              context,
-              'Loan Disbursed',
-              'Input Financing',
-              '+₦100,000',
-              true,
-              DateTime.now().subtract(const Duration(days: 3)),
-            ),
-            _buildTransactionItem(
-              context,
-              'Seeds Purchase',
-              'Premium Cassava Stems',
-              '-₦25,000',
-              false,
-              DateTime.now().subtract(const Duration(days: 5)),
-            ),
+            ...financeProvider.transactions.take(5).map((txn) {
+              return _buildTransactionItem(
+                context,
+                txn.title,
+                txn.description,
+                '${txn.type == TransactionType.credit ? '+' : '-'}₦${txn.amount.toStringAsFixed(0)}',
+                txn.type == TransactionType.credit,
+                txn.date,
+              );
+            }),
           ],
         ),
       ),

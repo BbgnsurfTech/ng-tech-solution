@@ -1,19 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_strings.dart';
+import '../../providers/farm_provider.dart';
+import '../../providers/finance_provider.dart';
+import '../../providers/marketplace_provider.dart';
+import '../../providers/notifications_provider.dart';
+import '../advisory/weather_advisory_screen.dart';
+import '../notifications/notifications_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final farmProvider = Provider.of<FarmProvider>(context);
+    final financeProvider = Provider.of<FinanceProvider>(context);
+    final marketplaceProvider = Provider.of<MarketplaceProvider>(context);
+    final notificationsProvider = Provider.of<NotificationsProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.dashboard),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
+            icon: Badge(
+              label: Text('${notificationsProvider.unreadCount}'),
+              isLabelVisible: notificationsProvider.unreadCount > 0,
+              child: const Icon(Icons.notifications_outlined),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -73,7 +96,7 @@ class DashboardScreen extends StatelessWidget {
                   child: _buildStatCard(
                     context,
                     'Active Crops',
-                    '5',
+                    '${farmProvider.totalActiveCrops}',
                     Icons.eco,
                     AppColors.success,
                   ),
@@ -83,7 +106,7 @@ class DashboardScreen extends StatelessWidget {
                   child: _buildStatCard(
                     context,
                     'Farm Size',
-                    '10 Ha',
+                    '${farmProvider.totalFarmSize.toStringAsFixed(1)} Ha',
                     Icons.landscape,
                     AppColors.info,
                   ),
@@ -96,8 +119,8 @@ class DashboardScreen extends StatelessWidget {
                 Expanded(
                   child: _buildStatCard(
                     context,
-                    'Revenue',
-                    '₦250K',
+                    'Income',
+                    '₦${(financeProvider.totalIncome / 1000).toStringAsFixed(0)}K',
                     Icons.trending_up,
                     AppColors.secondary,
                   ),
@@ -107,7 +130,7 @@ class DashboardScreen extends StatelessWidget {
                   child: _buildStatCard(
                     context,
                     'Marketplace',
-                    '12 Items',
+                    '${marketplaceProvider.items.length} Items',
                     Icons.store,
                     AppColors.accent,
                   ),
@@ -123,33 +146,45 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.wb_sunny,
-                      size: 50,
-                      color: AppColors.warning,
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WeatherAdvisoryScreen(),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Sunny, 28°C',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Good weather for planting',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.wb_sunny,
+                        size: 50,
+                        color: AppColors.warning,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Sunny, 28°C',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Good weather for planting',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios, size: 16),
+                    ],
+                  ),
                 ),
               ),
             ),
